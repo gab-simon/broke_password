@@ -28,8 +28,9 @@ int gera_senha_forcabruta(char senhaPronto[], char CaracteresRestantes[], int se
 }
 
 /* Retorna 1 caso tenha encontrado a senha e 0 caso contrario */
-int quebrador_senha_exaustivo(){
-    char vargs[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+int quebrador_senha_exaustivo()
+{
+    char vargs[] = "abcdefghijklmnopqrstuvwxyz0123456789";
     int senhaIndex = 0;
     char v[7] = "";
     v[6] = '\0';
@@ -80,25 +81,21 @@ int gera_senha_poda(char senhaPronto[], char CaracteresRestantes[], int senhaInd
 
     else
     {
-        if (!valida_dupla(senhaPronto, senhaIndex, tamanho + 1))
+        /* Permutação */
+        for (i = 0; i < 36; i++)
         {
-            /* Permutação */
-            for (i = tamanho; i < 36; i++)
+            /* Marca quando o caracter ja foi utilizado, para que pode a arvore */
+            if (CaracteresRestantes[i] != '@')
             {
-                /* Marca quando o caracter ja foi utilizado, para que pode a arvore */
-                if (CaracteresRestantes[i] != '@')
-                {
+                /* Marcação de caracter já utilizado atraves do @ */
+                senhaPronto[senhaIndex] = CaracteresRestantes[i];
+                guardaCaracter = CaracteresRestantes[i];
+                CaracteresRestantes[i] = '@';
 
-                    /* Marcação de caracter já utilizado atraves do @ */
-                    senhaPronto[senhaIndex] = CaracteresRestantes[i];
-                    guardaCaracter = CaracteresRestantes[i];
-                    CaracteresRestantes[i] = '@';
+                if (gera_senha_poda(senhaPronto, CaracteresRestantes, senhaIndex + 1, tamanho + 1))
+                    return 1;
 
-                    if (gera_senha_poda(senhaPronto, CaracteresRestantes, senhaIndex + 1, tamanho + 1))
-                        return 1;
-
-                    CaracteresRestantes[i] = guardaCaracter;
-                }
+                CaracteresRestantes[i] = guardaCaracter;
             }
         }
     }
@@ -107,7 +104,8 @@ int gera_senha_poda(char senhaPronto[], char CaracteresRestantes[], int senhaInd
 }
 
 /* Retorna 1 caso tenha encontrado a senha e 0 caso contrario */
-int quebrador_senha_poda(){
+int quebrador_senha_poda()
+{
     char vargs[] = "abcdefghijklmnopqrstuvwxyz0123456789";
     char v[7] = "";
     v[6] = '\0';
@@ -120,5 +118,3 @@ int quebrador_senha_poda(){
         return 1;
     return 0;
 }
-
-
