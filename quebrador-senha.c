@@ -1,5 +1,6 @@
 #include "biblioteca.h"
 #include "quebrador-senha.h"
+#include <stdio.h>
 
 /* Gera senhas força bruta*/
 int gera_senha_forcabruta(char senhaPronto[], char CaracteresRestantes[], int senhaIndex)
@@ -42,32 +43,8 @@ int quebrador_senha_exaustivo()
     return 0;
 }
 
-int valida_dupla(char senhaPronto[], int senhaIndex, int tamanho)
-{
-    char vargs[] = "abcdefghijklmnopqrstuvwxyz";
-    int soma = 0;
-
-    /* Caso a senha já tenha 5 de tamanho, ele entra na condição*/
-    if (senhaIndex == 5)
-    {
-        /* Percorre a senha pronta e verifica se já tem mais de dois caracteres*/
-        for (int i = tamanho; i < 26; i++)
-        {
-            for (int j = 0; j <= senhaIndex; j++)
-            {
-                if (senhaPronto[senhaIndex] = vargs[i])
-                    soma++;
-            }
-        }
-        if (soma >= 2 && soma <= 4)
-            return 1;
-    }
-
-    return 0;
-}
-
 /* Gera senhas poda */
-int gera_senha_poda(char senhaPronto[], char CaracteresRestantes[], int senhaIndex, int tamanho)
+int gera_senha_poda(char senhaPronto[], char CaracteresRestantes[], int senhaIndex, int cont_letras, int cont_numeros)
 {
     int i;
     char guardaCaracter;
@@ -75,6 +52,10 @@ int gera_senha_poda(char senhaPronto[], char CaracteresRestantes[], int senhaInd
     /* Caso base */
     if (senhaIndex == 6)
     {
+        if (cont_letras == 1)
+        {
+            printf("letras - %d numeros - %d \n", cont_letras, cont_numeros);
+        }
         if (login(senhaPronto))
             return 1;
     }
@@ -84,18 +65,67 @@ int gera_senha_poda(char senhaPronto[], char CaracteresRestantes[], int senhaInd
         /* Permutação */
         for (i = 0; i < 36; i++)
         {
+            // printf("senhaPronto: %s\n", senhaPronto);
             /* Marca quando o caracter ja foi utilizado, para que pode a arvore */
-            if (CaracteresRestantes[i] != '@')
+            if (senhaIndex >= 4)
             {
-                /* Marcação de caracter já utilizado atraves do @ */
-                senhaPronto[senhaIndex] = CaracteresRestantes[i];
-                guardaCaracter = CaracteresRestantes[i];
-                CaracteresRestantes[i] = '@';
+                if (CaracteresRestantes[i] != '@' && i <= 26)
+                {
+                    /* Marcação de caracter já utilizado atraves do @ */
+                    senhaPronto[senhaIndex] = CaracteresRestantes[i];
+                    guardaCaracter = CaracteresRestantes[i];
+                    CaracteresRestantes[i] = '@';
 
-                if (gera_senha_poda(senhaPronto, CaracteresRestantes, senhaIndex + 1, tamanho + 1))
-                    return 1;
+                    if (cont_letras >= 2 && cont_numeros >= 2)
+                    {
+                        if (gera_senha_poda(senhaPronto, CaracteresRestantes, senhaIndex + 1, cont_letras + 1, cont_numeros))
+                            return 1;
+                    }
+                    // printf("letras - %d numeros - %d \n", cont_letras, cont_numeros);
+                    // printf("senhaPronto: %s\n", senhaPronto);
 
-                CaracteresRestantes[i] = guardaCaracter;
+                    CaracteresRestantes[i] = guardaCaracter;
+                }
+                else if (CaracteresRestantes[i] != '@' && i > 26)
+                {
+                    senhaPronto[senhaIndex] = CaracteresRestantes[i];
+                    guardaCaracter = CaracteresRestantes[i];
+                    CaracteresRestantes[i] = '@';
+
+                    if (cont_letras >= 2 && cont_numeros >= 2)
+                    {
+                        if (gera_senha_poda(senhaPronto, CaracteresRestantes, senhaIndex + 1, cont_letras, cont_numeros + 1))
+                            return 1;
+                    }
+
+                    CaracteresRestantes[i] = guardaCaracter;
+                }
+            }
+            else
+            {
+                if (CaracteresRestantes[i] != '@' && i <= 26)
+                {
+                    /* Marcação de caracter já utilizado atraves do @ */
+                    senhaPronto[senhaIndex] = CaracteresRestantes[i];
+                    guardaCaracter = CaracteresRestantes[i];
+                    CaracteresRestantes[i] = '@';
+
+                    if (gera_senha_poda(senhaPronto, CaracteresRestantes, senhaIndex + 1, cont_letras + 1, cont_numeros))
+                        return 1;
+
+                    CaracteresRestantes[i] = guardaCaracter;
+                }
+                else if (CaracteresRestantes[i] != '@' && i > 26)
+                {
+                    senhaPronto[senhaIndex] = CaracteresRestantes[i];
+                    guardaCaracter = CaracteresRestantes[i];
+                    CaracteresRestantes[i] = '@';
+
+                    if (gera_senha_poda(senhaPronto, CaracteresRestantes, senhaIndex + 1, cont_letras, cont_numeros + 1))
+                        return 1;
+
+                    CaracteresRestantes[i] = guardaCaracter;
+                }
             }
         }
     }
@@ -112,7 +142,7 @@ int quebrador_senha_poda()
     int senhaIndex = 0;
     int tamanho = 0;
 
-    int valida = gera_senha_poda(v, vargs, senhaIndex, tamanho);
+    int valida = gera_senha_poda(v, vargs, senhaIndex, 0, 0);
 
     if (valida)
         return 1;
